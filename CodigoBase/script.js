@@ -56,8 +56,10 @@ function main() {
   loader.load('../Models/suv.glb', loadCar);
 
   renderer.render(scene, camera);
-  // Iniciar o treinamento
-  train();
+  
+  const param = window.location.search.substring(1);
+  if (param == 'qlearning') train();
+  else if (param == 'bfs') bfs();
 }
 function initHoles(){
   texture 	= new THREE.TextureLoader().load("../../Models/hole2.png");
@@ -324,6 +326,57 @@ function runAgent() {
 
 }
 
+function bfs() {
+  const initialPosition = { x: 0, y: 0 };
+  path = [];
+  const stack = [];
+  stack.push(initialPosition);
+
+  let count = 0;
+  while (true) {
+    let curPos = stack.pop();
+    count++;
+    trackAux[curPos.y][curPos.x] = 1;
+
+    if (curPos == null) {
+      console.error("não é possível chegar ao fim do mapa");
+      break;
+    }
+
+    // Verifica se chegou ao fim
+    if (curPos.x == 12) {
+      path.push(curPos);
+      break;
+    }
+
+    if (isHole(curPos.x, curPos.y)) {
+      path.pop();
+      continue;
+    }
+
+    // Adiciona novos caminhos
+    // down
+    if (curPos.y > 0  && trackAux[curPos.y-1][curPos.x] == 0) {
+      stack.push({x: curPos.x, y: curPos.y-1});
+    }
+    // up
+    if (curPos.y < pathSize.y-1 && trackAux[curPos.y+1][curPos.x] == 0) {
+      stack.push({x: curPos.x, y: curPos.y+1});
+    }
+    // right
+    if (curPos.x <= pathSize.x-1 && trackAux[curPos.y][curPos.x+1] == 0) {
+      stack.push({x: curPos.x+1, y: curPos.y});
+    }
+
+    path.push(curPos);
+
+
+  }
+  console.log(path)
+  console.log(count)
+  animateCar(path);
+}
+
 function animateCar() {
 
   var i=0;
@@ -343,4 +396,3 @@ function animateCar() {
 //********************************** */
 
 main();
-
