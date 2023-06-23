@@ -18,7 +18,7 @@ var learningRate = 1.0; // Taxa de aprendizado
 var discountFactor = 1.0; // Fator de desconto
 var explorationRate = 1.0; // Taxa de exploração
 var epsilon_decay = 0.01;
-var leraning_decay = 0.01;
+var learning_decay = 0.01;
 
 var qTable = [];
 var path = [];
@@ -56,6 +56,7 @@ function main() {
   loader.load('../Models/suv.glb', loadCar);
 
   renderer.render(scene, camera);
+  // Iniciar o treinamento
   train();
 }
 function initHoles(){
@@ -85,7 +86,6 @@ function initHoles(){
 
   holes.forEach(item =>{
     scene.add(item);
-
   });
 }
 
@@ -102,8 +102,6 @@ function initTrack(){
   track2.position.z = 1.9;
   scene.add(track2);
  
- 
-
 
   const trackSideGeometry = new THREE.PlaneGeometry(pathSize.x, 1.5)
 	const materialTrackSide = new THREE.MeshPhongMaterial({specular: 0x101010, color: 0x101010 });
@@ -226,7 +224,7 @@ function resetMatrix(){
 // Função para treinar o agente usando o algoritmo Q-learning
 function train() {
  
-  let counter = 0;
+  let counter = 0; // Contador de passos
   const numEpisodes = 50; // Número de episódios de treinamento
   
   for (let episode = 0; episode < numEpisodes; episode++) {
@@ -235,7 +233,6 @@ function train() {
 
     while (true) {
       counter++;
-
       var action = chooseAction(currentPosition); //Escolhe a ação (aleatória ou a melhor ação)
       let nextPosition = { x: currentPosition.x, y: currentPosition.y };
       trackAux[currentPosition.y][currentPosition.x] = 1; // Marca a posição atual como já visitada na pista auxiliar
@@ -270,14 +267,15 @@ function train() {
       currentPosition = nextPosition;
       
     }
-    explorationRate -= epsilon_decay;
-    learningRate -= leraning_decay;
-    console.log("exploration rate",explorationRate );
+    explorationRate -= epsilon_decay; // Decaimento da taxa de exploração
+    learningRate -= learning_decay; // Decaimento da taxa de aprendizado
+    //console.log("exploration rate",explorationRate );
   }
- // console.log("Tabela Q treinada: ", qTable);
+  console.log("Tabela Q treinada: ", qTable);
   runAgent();
- // console.log("Passos: ", counter);
-  //console.log("Média de passos/episódios: ", counter/numEpisodes);
+
+  console.log("Passos: ", counter);
+  console.log("Média de passos/episódios: ", counter/numEpisodes);
   
 }
 
@@ -318,8 +316,8 @@ function runAgent() {
     if(currentPosition.x == 12){
       path.push(currentPosition);
       console.log("Caminho percorrido (já treinado): ", path);
-      console.log("Buracos", counterHoles);
-      animateCar(path);
+      console.log("Caiu em", counterHoles, "buracos");
+      animateCar(path); // Chama a função para iniciar a animação passando o array de posições
       break;
     }
   }
@@ -331,18 +329,18 @@ function animateCar() {
   var i=0;
     var id = setInterval(function() { 
 
-    if(path[i] == undefined){
+    if(path[i] == undefined){ // Chegou no final do array
       console.log("Encerra animação!");
       clearInterval(id);
     }else{
-      car.position.set(path[i].x, - path[i].y, 2);
+      car.position.set(path[i].x, - path[i].y, 2); // Muda a posição do carro (x,y)
       i++;
     }
       renderer.render(scene, camera);
-    }, 180);
+    }, 180); 
 
 }
 //********************************** */
 
 main();
-// Iniciar o treinamento
+
