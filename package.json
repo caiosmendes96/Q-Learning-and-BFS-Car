@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@tensorflow/tfjs": "^4.7.0"
+    "@tensorflow/tfjs": "^4.7.0",
+    "three-skybox": "^0.0.2"
   }
 }
