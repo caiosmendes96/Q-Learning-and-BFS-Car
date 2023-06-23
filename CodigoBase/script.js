@@ -14,10 +14,11 @@ var scene,
     textureRoad;
 
 var pathSize = { x: 13, y: 4 }; // Tamanho da grade da pista (10x5)
-var learningRate = 0.93; // Taxa de aprendizado
-var discountFactor = 0.95; // Fator de desconto
-var explorationRate = 0.2; // Taxa de exploração
-var epsilon_decay = 0.019;
+var learningRate = 1.0; // Taxa de aprendizado
+var discountFactor = 1.0; // Fator de desconto
+var explorationRate = 1.0; // Taxa de exploração
+var epsilon_decay = 0.01;
+var leraning_decay = 0.01;
 
 var qTable = [];
 var path = [];
@@ -29,40 +30,36 @@ function main() {
 	renderer = new THREE.WebGLRenderer({ antialias: true } );
 	renderer.setClearColor(new THREE.Color(0.0, 0.0, 0.0));
   renderer.setPixelRatio( window.devicePixelRatio );
+ 
 	rendSize.x = rendSize.y = Math.min(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
 	renderer.setSize(rendSize.x * 1.3, rendSize.y / 1.4);
 	container = document.getElementById( 'threejs-canvas' );
 	document.body.appendChild(container);
 	container.appendChild( renderer.domElement );
 
 	scene 	= new THREE.Scene();
-	camera = new THREE.PerspectiveCamera(50, rendSize.x / rendSize.y, 1.0, 2000);
-	camera.position.set(6,5, 21);
-
-  texture 		= new THREE.TextureLoader().load("../../Models/hole2.png");
-  textureRoad 		= new THREE.TextureLoader().load("../../Models/ativo.png");
-
   scene.background = new THREE.Color( 0x87CEEB );
   scene.rotation.y = 0.0;
   scene.rotation.x = -Math.PI/ 3 ;
   scene.rotation.z = 0.0;
 
-  const loaderSky = new THREE.TextureLoader();
-  //loaderSky.load('../../Models/sky.jpg' , function(texture) {scene.background = texture; });
+	camera = new THREE.PerspectiveCamera(50, rendSize.x / rendSize.y, 1.0, 2000);
+	camera.position.set(6,5, 21);
 
   initTrack();
-  // LIGHTS
+
 	initLights();
 
   initHoles();
 
   loader.load('../Models/suv.glb', loadCar);
 
-  renderer.shadowMap.enabled = true;
   renderer.render(scene, camera);
+  train();
 }
 function initHoles(){
-
+  texture 	= new THREE.TextureLoader().load("../../Models/hole2.png");
 	// criação dos buracos
   var holes = [];
 	const obstacleGeometry = new THREE.PlaneGeometry(0.8, 0.8);
@@ -93,15 +90,20 @@ function initHoles(){
 }
 
 function initTrack(){
+ 
+  textureRoad = new THREE.TextureLoader().load("../../Models/ativo.png");
 
   const trackGeometry = new THREE.PlaneGeometry(pathSize.x, pathSize.y + 1.0);
-	const trackMaterial = new THREE.MeshPhongMaterial({ map:textureRoad, specular: 0x10101, depthWrite: false });
-	const track2 = new THREE.Mesh(trackGeometry, trackMaterial);
+  const trackMaterial = new THREE.MeshPhongMaterial({ map:textureRoad, specular: 0x10101, depthWrite: false });
+  const track2 = new THREE.Mesh(trackGeometry, trackMaterial);
   track2.receiveShadow = true;
   track2.position.x += 6;
   track2.position.y -= 1.5;
   track2.position.z = 1.9;
-	scene.add(track2);
+  scene.add(track2);
+ 
+ 
+
 
   const trackSideGeometry = new THREE.PlaneGeometry(pathSize.x, 1.5)
 	const materialTrackSide = new THREE.MeshPhongMaterial({specular: 0x101010, color: 0x101010 });
@@ -210,7 +212,7 @@ function updateQTable(position, action, reward, nextPosition) {
   qTable[position.x][position.y][action] = updatedQ;
 }
 function resetCar(){
-  car.position.set(0,0,0);
+  car.position.set(0, 0, 1.8);
   renderer.render(scene, camera);
 }
 
@@ -223,11 +225,11 @@ function resetMatrix(){
 }
 // Função para treinar o agente usando o algoritmo Q-learning
 function train() {
+ 
   let counter = 0;
   const numEpisodes = 50; // Número de episódios de treinamento
-  //renderer.render(scene, camera);
+  
   for (let episode = 0; episode < numEpisodes; episode++) {
-
     resetMatrix();
     let currentPosition = { x: 0, y: 0 }; // Posição inicial do carro
 
@@ -268,13 +270,15 @@ function train() {
       currentPosition = nextPosition;
       
     }
-   // explorationRate -= epsilon_decay;
-  // console.log("exploration rate",explorationRate );
+    explorationRate -= epsilon_decay;
+    learningRate -= leraning_decay;
+    console.log("exploration rate",explorationRate );
   }
-  console.log("Tabela Q treinada: ", qTable);
+ // console.log("Tabela Q treinada: ", qTable);
   runAgent();
-  console.log("Passos: ", counter);
-  console.log("Média de passos/episódios: ", counter/numEpisodes);
+ // console.log("Passos: ", counter);
+  //console.log("Média de passos/episódios: ", counter/numEpisodes);
+  
 }
 
 // Função para executar o agente treinado e criar o array de posições para animação
@@ -282,7 +286,7 @@ function runAgent() {
   
   let currentPosition = { x: 0, y: 0 }; // Posição inicial do carro
   var counterHoles = 0;
-  //renderer.render(scene, camera);
+  
   while(true){
 
     var actions = Object.keys(qTable[currentPosition.x][currentPosition.y]);
@@ -342,4 +346,3 @@ function animateCar() {
 
 main();
 // Iniciar o treinamento
-train();
