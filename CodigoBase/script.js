@@ -14,9 +14,9 @@ var scene,
     textureRoad;
 
 var pathSize = { x: 13, y: 4 }; // Tamanho da grade da pista (10x5)
-var learningRate = 1.0; // Taxa de aprendizado
-var discountFactor = 1.0; // Fator de desconto
-var explorationRate = 1.0; // Taxa de exploração
+var learningRate = 0.5; // Taxa de aprendizado
+var discountFactor = 0.5; // Fator de desconto
+var explorationRate = 0.5; // Taxa de exploração
 var epsilon_decay = 0.01;
 var learning_decay = 0.01;
 
@@ -56,8 +56,10 @@ function main() {
   loader.load('../Models/suv.glb', loadCar);
 
   renderer.render(scene, camera);
-  // Iniciar o treinamento
-  train();
+  
+  const param = window.location.search.substring(1);
+  if (param == 'qlearning') train();
+  else if (param == 'bfs') bfs();
 }
 function initHoles(){
   texture 	= new THREE.TextureLoader().load("../../Models/hole2.png");
@@ -139,7 +141,9 @@ function initTrack(){
 }
 
 // Inicializa o modelo do carro e o posiciona corretamente na pista
+
 function loadCar(loadedCar){
+
 	car = loadedCar.scene;
 	car.traverse((o) => {
 		if (o.isMesh){
@@ -209,6 +213,7 @@ function updateQTable(position, action, reward, nextPosition) {
   var updatedQ = (1 - learningRate) * currentQ + learningRate * (reward + discountFactor * maxNextQ);
   qTable[position.x][position.y][action] = updatedQ;
 }
+
 function resetCar(){
   car.position.set(0, 0, 1.8);
   renderer.render(scene, camera);
@@ -324,6 +329,57 @@ function runAgent() {
 
 }
 
+function bfs() {
+  const initialPosition = { x: 0, y: 0 };
+  path = [];
+  const stack = [];
+  stack.push(initialPosition);
+
+  let count = 0;
+  while (true) {
+    let curPos = stack.pop();
+    count++;
+    trackAux[curPos.y][curPos.x] = 1;
+
+    if (curPos == null) {
+      console.error("não é possível chegar ao fim do mapa");
+      break;
+    }
+
+    // Verifica se chegou ao fim
+    if (curPos.x == 12) {
+      path.push(curPos);
+      break;
+    }
+
+    if (isHole(curPos.x, curPos.y)) {
+      path.pop();
+      continue;
+    }
+
+    // Adiciona novos caminhos
+    // down
+    if (curPos.y > 0  && trackAux[curPos.y-1][curPos.x] == 0) {
+      stack.push({x: curPos.x, y: curPos.y-1});
+    }
+    // up
+    if (curPos.y < pathSize.y-1 && trackAux[curPos.y+1][curPos.x] == 0) {
+      stack.push({x: curPos.x, y: curPos.y+1});
+    }
+    // right
+    if (curPos.x <= pathSize.x-1 && trackAux[curPos.y][curPos.x+1] == 0) {
+      stack.push({x: curPos.x+1, y: curPos.y});
+    }
+
+    path.push(curPos);
+
+
+  }
+  console.log(path)
+  console.log(count)
+  animateCar(path);
+}
+
 function animateCar() {
 
   var i=0;
@@ -343,4 +399,3 @@ function animateCar() {
 //********************************** */
 
 main();
-
