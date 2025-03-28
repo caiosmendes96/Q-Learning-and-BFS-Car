@@ -26,3 +26,52 @@ O objetivo é chegar na posição (12,y) do trecho. </br>
 
 ![image](https://github.com/user-attachments/assets/891d5074-0284-4cb5-bcd5-1d71b03b2482)
 
+##
+
+<h3>Busca em Profundidade:</h3>
+
+- O algoritmo verifica os possíveis caminhos a serem seguidos e os guarda em uma pilha  </br>
+- Prioridade em Avançar -> Cima -> Baixo  </br>
+- Caminhos que foram utilizados são marcados como visitados  </br>
+- Ao encontrar um buraco retorna e tenta o próximo caminho
+- Tenta todas as possibilidades  </br>
+- Caso a pilha esvazie o objetivo não pode ser alcançado  </br>
+
+##
+
+<h3>Q-Learning:</h3>
+
+O carro tem 3 ações possíveis: mover-se à direita, cima ou baixo. </br>
+
+Recompensas: </br>
+- Visitar uma posição já visitada: -2
+- Visitar uma posição fora da pista: -1
+- Visitar uma posição com buraco: -20
+- Visitar uma posição dentro da pista e sem buraco: +1
+- Visitar uma posição final (12,y): +10
+
+<h3>Resultados</h3>
+
+<img src="https://github.com/user-attachments/assets/88de52a6-6ba3-4cb8-9652-96840c49c0f9" align="center" height="400" width="800" > </br>
+
+<img src="https://github.com/user-attachments/assets/1ee659b8-dafe-4eda-923f-9ea287646f7c" align="center" height="400" width="800" > </br>
+
+<img src="https://github.com/user-attachments/assets/9c5842df-17e8-4671-8370-c33400eae3fb" align="center" height="400" width="800" > </br>
+
+<img src="https://github.com/user-attachments/assets/70f82b79-6885-428f-9cab-649436d1341b" align="center" height="400" width="800" > </br>
+
+
+##
+
+<h3>Como executar:</h3>
+
+Instale o Node.js e execute npx serve para iniciar um servidor local no diretório do projeto.
+Executará em um ip local por exemplo: </br>
+http://localhost:3000/CodigoBase/?qlearning </br>
+http://localhost:3000/CodigoBase/?bfs </br>
+
+https://threejs.org/docs/#manual/en/introduction/Installation </br>
+
+Link para o vídeo do projeto sendo executado: https://www.youtube.com/watch?v=h_aAY2yXBiA
+
+
