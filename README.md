@@ -1,4 +1,4 @@
-Projeto com objetivo de resolução de problema utilizando o algoritmo de Busca em Largura (BFS) e algoritmo de aprendizagem por reforço Q-Learning.
+Projeto com objetivo de resolução de problema utilizando o algoritmo de Busca em Profundidade e algoritmo de aprendizagem por reforço Q-Learning.
 
 ##
 
